@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Management System</title>
+    <!-- Menghubungkan Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Menghubungkan Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Menambahkan gridlines pada tabel */
+        table {
+            width: 100%;
+        }
+        th, td {
+            text-align: left;
+            padding: 8px;
+        }
+        th {
+            background-color: #f8f9fa; /* Memberikan warna pada headline atau judul kolom */
+        }
+        img {
+            max-width: 100px; /* Ubah ukuran maksimum sesuai kebutuhan Anda */
+            height: auto;
+        }
+        .search-container {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 1em;
+        }
+        .search-input {
+            width: calc(100% - 40px); /* Lebar input dikurangi dengan lebar ikon search */
+            padding: 0.5em 1em;
+            opacity: 1;
+            transition: width 0.4s ease, padding 0.4s ease;
+            border: 1px solid #ced4da;
+            border-radius: 0.25em;
+        }
+        .search-icon {
+            position: absolute;
+            top: 50%;
+            right: 5px;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #007bff;
+        }
+        /* Tombol seperti Search Books */
+        .button {
+            display: inline-block;
+            padding: 0.5em 1em;
+            margin: 0 0.5em;
+            border: none;
+            border-radius: 0.25em;
+            background-color: #007bff;
+            color: #fff;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-decoration: none; /* Menghapus garis bawah pada tautan */
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        /* Mengatur jarak tombol Add Book dan Add Member agar tidak terlalu dekat dan bersebelahan */
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin: 1em 0;
+        }
+        /* Gaya untuk header dan footer */
+        .header, .footer {
+            background-color: #343a40;
+            color: white;
+            padding: 1em 0;
+            text-align: center;
+            position: fixed;
+        }
+        .header a, .footer a {
+            color: white;
+            text-decoration: none;
+            margin: 0 1em;
+        }
+        /* Mengatur footer untuk tetap di bagian bawah tanpa space */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            position: relative;
+        }
+        .content-wrap {
+        min-height: calc(100vh - 120px); /* 123px adalah tinggi navbar dan footer */
+        margin-bottom: 20px; /* Atur margin bottom sesuai kebutuhan */
+        overflow-y: auto; /* Menambahkan scroll jika konten melebihi ukuran layar */
+        }
+        .header {
+        background-color: #343a40; /* Warna latar belakang header */
+        color: white; /* Warna teks header */
+        padding: 1em 0; /* Padding atas dan bawah pada header */
+        text-align: center; /* Posisi teks dalam header */
+        width: 100%; /* Lebar header */
+        position: fixed; /* Tetap di posisi tetap */
+        top: 0; /* Atur posisi di bagian atas */
+        z-index: 1000; /* Tingkat kedalaman tumpukan elemen */
+        }
+        .footer {
+        background-color: #343a40;
+        color: white;
+        padding: 1em 0;
+        text-align: center;
+        width: 100%;
+        position: fixed;
+        margin-top: 10px; /* Atur margin atas sesuai kebutuhan */
+        bottom: 0;
+        z-index: 1000; /* Menentukan tingkat kedalaman tumpukan elemen, jika diperlukan */
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Library Management System</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Books</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Members</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Account</a>
+                    </li>
+                </ul>
+                
+                <!-- Tombol Search Books -->
+                <form action="{{ url_for('main.index') }}" method="GET" class="form-inline my-2 my-lg-0 mr-2">
+                    <input class="form-control mr-sm-2" type="search" placeholder="Search Books" aria-label="Search" name="search" value="{{ request.args.get('search', '') }}">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                </form>
+                <!-- Tombol Add Book -->
+                <form action="{{ url_for('main.add_book') }}" method="GET" class="form-inline my-2 my-lg-0 mr-2">
+                    <button class="btn btn-outline-primary my-2 my-sm-0" type="submit">Add Book</button>
+                </form>
+                <!-- Tombol Add Member -->
+                <form action="{{ url_for('main.add_member') }}" method="GET" class="form-inline my-2 my-lg-0">
+                    <button class="btn btn-outline-primary my-2 my-sm-0" type="submit">Add Member</button>
+                </form>
+
+                <!-- Tombol Add Shoe -->
+                <form action="{{ url_for('main.add_shoe') }}" method="GET" class="form-inline my-2 my-lg-0">
+                    <button class="btn btn-outline-primary my-2 my-sm-0" type="submit">Add Shoe</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Konten aplikasi -->
+    <div class="content-wrap">
+        <div class="container mt-4">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                <div class="alert alert-dismissible fade show" role="alert">
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+              {% endif %}
+            {% endwith %}
+
+            <h2 class="mb-4">Book List</h2>
+
+            <table class="table table-striped">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Cover</th>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>ISBN</th>
+                        <th>Year</th>
+                        <th>Publisher</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for book in books %}
+                    <tr class="{% if search_query and (search_query.lower() in book.title.lower() or search_query.lower() in book.isbn.lower()) %}table-info{% endif %}">
+                        <td><img src="{{ url_for('static', filename='uploads/' ~ book.cover_image) }}" alt="{{ book.title }}"></td>
+                        <td>{{ book.title|safe }}</td>
+                        <td>{{ book.author }}</td>
+                        <td>{{ book.isbn|safe }}</td>
+                        <td>{{ book.year }}</td>
+                        <td>{{ book.publisher }}</td>
+                        <td>
+                            <form action="{{ url_for('main.delete_book', book_id=book.id) }}" method="POST" style="display:inline;">
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                            <a href="{{ url_for('main.edit_book', book_id=book.id) }}" class="btn btn-warning btn-sm">Edit</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer bg-dark text-white text-center py-3">
+        &copy; 2024 Library Management System. All rights reserved.
+    </footer>
+
+    <!-- Menghubungkan Bootstrap JS dan dependensi -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- Script untuk menampilkan Book List saat tombol Books diklik -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fungsi untuk menampilkan Book List saat tombol Books diklik
+            document.getElementById('books-link').addEventListener('click', function(event) {
+                event.preventDefault(); // Menghentikan aksi default dari link
+                
+                // Mengirim permintaan GET ke endpoint yang menampilkan Book List
+                fetch('/book-list-endpoint') // Ganti '/book-list-endpoint' dengan URL endpoint yang benar
+                    .then(response => response.text())
+                    .then(data => {
+                        // Menampilkan hasil Book List di dalam div dengan class 'container'
+                        document.querySelector('.container').innerHTML = data;
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
+        });
+    </script>
+
+</body>
+</html>
